@@ -1,33 +1,35 @@
 #include <iostream>
-#include "Link_List.h"
+#include "Link_List.hpp"
 
 using std::cin;
 using std::cout;
 using std::endl;
 using std::cerr;
+using std::ostream;
+using std::istream;
+
 
 /*---------------Construct Int_Node----------------*/
-Int_Node::Int_Node(){
-  this->value = 0;
-  this->pre = NULL;
-  this->next = NULL;
-}
 
-Int_Node::Int_Node(int val){
-  this->value = val;
-  this->pre = NULL;
-  this->next = NULL;
-}
+template<typename T>
+Int_Node<T>::Int_Node() : value(0), pre(NULL), next(NULL){};
+
+template<typename T>
+Int_Node<T>::Int_Node(T val) : value(val), pre(NULL), next(NULL){}
 
 /*---------------operator cin & cout---------------*/
-ostream &operator<<(ostream &cout, const Link_List &list){
+
+template<typename T>
+ostream &operator<<(ostream &cout, const Link_List<T> &list){
   for(int i=0; i<list.getSize(); i++){
     cout << list[i] << " ";
   }
   return cout;
 }
-istream &operator>>(istream &cin, Link_List &list){
-  int input;
+
+template<typename T>
+istream &operator>>(istream &cin, Link_List<T> &list){
+  T input;
   cin >> input;
   list.insert_node(input);
   return cin;
@@ -35,69 +37,76 @@ istream &operator>>(istream &cin, Link_List &list){
 
 /*-------------constructor & destructor-----------*/
 
-Link_List::Link_List() : size(0), head(NULL), tail(NULL){}
+template<typename T>
+Link_List<T>::Link_List() : size(0), head(NULL), tail(NULL){}
 
-Link_List::Link_List(const Link_List &list){
+template<typename T>
+Link_List<T>::Link_List(const Link_List<T> &list){
   *this = list;
 }
 
-Link_List::~Link_List(){
+template<typename T>
+Link_List<T>::~Link_List(){
   delete head;
   delete tail;
 }
 
 /*--------------------functoin--------------------*/
 
-int Link_List::getSize() const{
+template<typename T>
+int Link_List<T>::getSize() const{
   return size;
 }
 
-const Link_List &Link_List::operator=(const Link_List &list){
-  Int_Node *newHead=list.head;
-  Int_Node *newTail=NULL;
-  Int_Node *curNode = list.head;
-  
+template<typename T>
+const Link_List<T> &Link_List<T>::operator=(const Link_List<T> &list){
+  Int_Node<T> *curNode = list.head;
+  Int_Node<T> *newHead = NULL;
+  Int_Node<T> *newTail = NULL;
+
   while(curNode != NULL){
-    if(newTail == NULL){
-      newTail = curNode;
+    Int_Node<T> *newNode = new Int_Node<T>(curNode->value);
+
+    if(newHead == NULL){
+      newHead = newNode;
+      newTail = newNode;
     }
     else{
-      newTail->next = curNode;
-      newTail->next->pre = newTail;
+      newTail->next = newNode;
+      newNode->pre = newTail;
       newTail = newTail->next;
     }
-
     curNode = curNode->next;
   }
+
+  // this->clear_list();
 
   this->head = newHead;
   this->tail = newTail;
   this->size = list.getSize();
 }
 
-bool Link_List::operator==(const Link_List &list) const{
+template<typename T>
+bool Link_List<T>::operator==(const Link_List<T> &list) const{
   if(this->size != list.getSize())
     return false;
-  Int_Node *n1 = this->head;
-  Int_Node *n2 = list.head;
 
-  while(n1 != NULL && n2 != NULL){
-    if(n1->value != n2->value)
+  for(int i=0; i<this->size; i++){
+    if((*this)[i] != list[i])
       return false;
-    n1 = n1->next;
-    n2 = n2->next;
   }
   return true;
 }
 
-int &Link_List::operator[](int index){
+template<typename T>
+T &Link_List<T>::operator[](int index){
   if(index >= size || index < 0){
     cerr << "\nError: index " << index
     << " out of range" << endl;
     exit(1); // terminate program; index out of range
   }
   else{
-    Int_Node *curNode = this->head;
+    Int_Node<T> *curNode = this->head;
     for(int i=0; i<index; i++)
       curNode = curNode->next;
 
@@ -105,14 +114,15 @@ int &Link_List::operator[](int index){
   }
 }
 
-int Link_List::operator[](int index) const{
+template<typename T>
+T Link_List<T>::operator[](int index) const{
   if(index >= this->size || index < 0){
     cerr << "\nError: index " << index
     << " out of range" << endl;
     exit(1); // terminate program; index out of range
   }
   else{
-    Int_Node *curNode = this->head;
+    Int_Node<T> *curNode = this->head;
     for(int i=0; i<index; i++)
       curNode = curNode->next;
 
@@ -120,9 +130,10 @@ int Link_List::operator[](int index) const{
   }
 }
 
-bool Link_List::insert_node(int value){
+template<typename T>
+bool Link_List< T >::insert_node(T value){
   try{
-    Int_Node *newNode = new Int_Node(value);
+    Int_Node<T> *newNode = new Int_Node<T>(value);
     if(size == 0){
       this->head = newNode;
       this->tail = newNode;
@@ -135,28 +146,16 @@ bool Link_List::insert_node(int value){
     size++;
     return true;
   }
-  catch(int err){
+  catch(...){
     return false;
   }
 }
 
-bool Link_List::delete_node(){
+template<typename T>
+bool Link_List< T >::insert_node(int index, T value){
   try{
-    Int_Node *curNode = this->tail;
-    curNode->pre->next = NULL;
-    delete curNode;
-    this->size--;
-    return true;
-  }
-  catch(int err){
-    return false;
-  }
-}
-
-bool Link_List::insert_node(int index, int value){
-  try{
-    Int_Node *newNode = new Int_Node(value);
-    Int_Node *curNode = this->head;
+    Int_Node<T> *newNode = new Int_Node<T>(value);
+    Int_Node<T> *curNode = this->head;
     for(int i=0; i<index;i++){
       curNode = curNode->next;
     }
@@ -167,14 +166,29 @@ bool Link_List::insert_node(int index, int value){
     size++;
     return true;
   }
-  catch(int err){
+  catch(...){
     return false;
   }
 }
 
-bool Link_List::delete_node(int index){
+template<typename T>
+bool Link_List<T>::delete_node(){
   try{
-    Int_Node *curNode = this->head;
+    Int_Node<T> *curNode = this->tail;
+    curNode->pre->next = NULL;
+    delete curNode;
+    this->size--;
+    return true;
+  }
+  catch(...){
+    return false;
+  }
+}
+
+template<typename T>
+bool Link_List<T>::delete_node(int index){
+  try{
+    Int_Node<T> *curNode = this->head;
     for(int i=0; i<index; i++)
       curNode = curNode->next;
 
@@ -184,7 +198,24 @@ bool Link_List::delete_node(int index){
     this->size--;
     return true;
   }
-  catch(int err){
+  catch(...){
     return false;
   }
 }
+
+// template<typename T>
+// bool Link_List<T>::clear_list(){
+//   try{
+//     int i=0;
+//     while(head != NULL){
+//       cout << i++ << endl;
+//       Int_Node<T> *tmp = this->tail;
+//       tail = tail->pre;
+//       delete tmp;
+//     }
+//     return true;
+//   }
+//   catch(...){
+//     return false;
+//   }
+// }
