@@ -15,6 +15,10 @@ struct Node{
   Node *left=NULL, *right=NULL, *parent=NULL;
   // Constructor
   Node(int key, const string gender, int height, int weight);
+  // functions
+  inline const string &getGender() const{return gender;}
+  inline const int &getHeight()  const{return height;}
+  inline const int &getWeight()  const{return weight;}
 };
 
 //  RBTree
@@ -23,20 +27,16 @@ class RBTree{
 public:
   // Constructor
   RBTree() {root = NULL;}
-  bool insert(int n, const string gd, int h, int w);
-  string getGender(){return root->gender;}
-  int getHeight(){return root->height;}
-  int getWeight(){return root->weight;}
-  void setRoot(Node *node){*root = *node;}
-public:
+  bool insert(int k, const string gd, int h, int w);
   // operator
-  RBTree &operator[](int key);
-  const RBTree operator[](int key)const;
+  Node &operator[](int);
+  const Node operator[](int)  const;
 
-protected:
-  void rotateLeft(Node *&, Node *&);
-  void rotateRight(Node *&, Node *&);
-  void fixViolation(Node *&, Node *&);
+private:
+  void rotateLeft(Node *&);
+  void rotateRight(Node *&);
+  void fixViolation(Node *&);
+
 private:
   Node *root;
 };

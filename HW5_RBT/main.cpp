@@ -1,12 +1,12 @@
-#include <iostream>
-#include <time.h>
-#include <string>
-#include <iomanip>
-#include <set>
-#include <fstream>
-#include <ctime>
 #include <chrono>
 #include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <set>
+#include <string>
+#include <time.h>
 #include <vector>
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 // Please implement RBTree class in separate header and cpp file (RBTree.h and RBTree.cpp)          //
@@ -20,10 +20,9 @@ using namespace std;
 class to evaluate time cost
 */
 template <typename Timer = std::chrono::milliseconds>
-struct measure
-{
+struct measure {
     template <typename F, typename... Args>
-    static typename Timer::rep execution(F func, Args &&... args)
+    static typename Timer::rep execution(F func, Args&&... args)
     {
         auto start = std::chrono::high_resolution_clock::now();
         func(std::forward<Args>(args)...);
@@ -39,8 +38,7 @@ void EvaluateFunc(RBTree rbTree, vector<int> testCases)
 {
     string gender;
     int height, weight;
-    for (int i = 0; i < testCases.size(); i++)
-    {
+    for (int i = 0; i < testCases.size(); i++) {
         gender = rbTree[testCases.back()].getGender();
         height = rbTree[testCases.back()].getHeight();
         weight = rbTree[testCases.back()].getWeight();
@@ -77,8 +75,7 @@ int main()
     int repeat = 0;
     bool ret;
 
-    for (int i = 0; i < 5000000; i++)
-    {
+    for (int i = 0; i < 5000000; i++) {
         // generate test cases
         int key = rand31() % 100000000 + 1;
         int gender = rand() % 2;
@@ -88,14 +85,15 @@ int main()
 
         // insert
         ret = rbTree.insert(key, sex, height, weight);
-        // collect evaluated test cases
-        testCases.push_back(key);
 
         // collision happen
         if (ret == false)
             repeat++;
+        else
+            // collect evaluated test cases
+            testCases.push_back(key);
     }
-    // You should not get repeat > 0
+    // (updated) repeat will > 0 because of collisions
     cout << repeat << endl;
 
     // Evauluate the speed of your RBTree
